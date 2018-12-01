@@ -1,0 +1,118 @@
+COMP40 Homework 6
+Lionel Oh (loh01) and Naoki Okada (nokada01)
+
+Help or collaborative work: All the TAs!!
+
+What has and has not been correctly implemented:
+- UM emulates a 32-bit machine - reads in 32-bit instructions and executes them 
+accordingly
+- Each execution cycle is implemented as per the specifications
+- The initial state of the UM is implemented as per the specifications
+- The major components of the UM (i.e. the I/O device, registers, memory) 
+function as expected
+
+
+Any significant departures from our design:
+- Minor changes to the parameters and contracts of some functions in our 
+interfaces
+- Overall program stuck closely to our design (data representation, interfaces, 
+location of data structures)
+
+
+Architecture:
+- Main handles the command line arguments and acts as the UM shell, with a 
+run_prog function to get the instructions and execute them. 
+  - The 8 registers are represented by a UArray of uint32_t
+  - Memory is represented by a sequence of memory segment structs, each 
+    containing a mapped/unmapped flag and a UArray of uint32_t for the words 
+    in the segment
+  - Program counter is represented by a uint32_t variable
+  - Unmapped segment identifiers are represented by uint32_t indexes of 
+    unmapped segments in memory that are available for reuse. They are all 
+    stored in a sequence.
+- Modules implemented: I/O interface, Operations interface, Memory interface
+  - Operations interface
+    - Initializes and frees the registers that are declared in main 
+    - Provides the functions for each individual instruction, to be called 
+      from main
+    - Calls memory interface and I/O interface for the execution of certain 
+      instructions
+    - Functional abstraction - Hides how the instruction is performed, how the 
+      registers are manipulated, and how memory and I/O device is accessed
+  - Memory interface
+    - Initializes and frees the memory that is declared in main
+    - Assists the operations interface in instructions requiring manipulation 
+      of memory, by providing access to values within segments, allowing 
+      changes to be made to segments, and executing the mapping and unmapping 
+      of segments
+    - Hides how memory is mapped, reused, and unmapped from the user
+  - I/O interface
+    - Reads in user input, and allows program to print output
+    - The I/O device is meant to abstract the use of the standard C library 
+      from the client
+
+
+Speed:
+- Time taken to execute 500,000 instructions: 0.864s
+- Time taken to execute 50 million instructions: 26 sec
+- We suspect this is because our test only required the execution of one 
+  map-segment instruction, 50 million times. With regard to locality, this 
+  might thus be more efficient than we expected.
+- However, runtimes for midmark are above the expected one-second benchmark. 
+  Our UM takes around nine seconds.
+
+
+UM tests:
+- halt.um
+  - Tests halt by calling halt one
+
+- io.um
+  - Tests the functionality of the I/O device by taking a user input and 
+    printing it as output
+
+- add.um
+  - Loads values into two registers
+  - Adds them
+  - Outputs the sum
+
+- divide.um
+  - Tests divide
+  - Loads values into two registers
+  - Divides the first number by the second
+  - Outputs the quotient
+
+- advanced.um
+  - Reads one character from the input, which should be a digit. 
+  - Uses NAND to extract the least significant 4 bits. Adds this number to 48, 
+    and prints the result, which should be the original digit.	
+
+- loadpro.um
+  - Tests load program
+  - Maps a segment, and executes the load program instruction to replace 
+    segment 0 with that segment 
+
+- unmap.um
+  - Tests the unmap function
+  - Maps a couple of segments, unmaps one of them, and map a segment again
+
+- segments.um
+  - Testing the functionality of the UM in handling consecutive mapping, 
+    loading, and unmapping of segments
+
+- fivehundredk.um
+  - Runs the map segment instruction 500,000 times
+
+- condi-mov.um
+  - Tests conditional move in both situations where the value in register
+    c is 0 and not 0
+
+- halt-verbose.um
+  - Tests halt by calling halt one and if it fails, prints "Bad!\n" 
+
+- print-six.um
+  - Tests a series of loading and addition instructions to print the
+    digit 6
+
+Number of hours spent analyzing the assignment: 5
+Number of hours spent preparing our design: 12
+Number of hours spent solving the problems after our analysis: 20
