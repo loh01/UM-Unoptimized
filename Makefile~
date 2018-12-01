@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc -O3
 
 IFLAGS  = -I/comp/40/include -I/usr/sup/cii40/include/cii
 CFLAGS  = -g -std=gnu99 -Wall -Wextra -Werror -pedantic $(IFLAGS)
